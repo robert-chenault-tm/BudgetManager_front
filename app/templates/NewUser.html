@@ -1,0 +1,14 @@
+<div class="container">
+	<form class="form-signin" ng-submit="createAccount()">
+	      <h1 class="h3 mb-3 font-weight-normal">Sign Up</h1>
+	      <div ng-show="errors.length != 0">
+			<label ng-repeat="error in errors" class="text-danger d-block">{{error}}</label>
+		  </div>
+	      <label for="inputUsername" class="sr-only">Username</label>
+	      <input type="text" ng-model="newUsername" id="inputUsername" class="form-control" placeholder="Username" required autofocus>
+	      <label for="inputPassword" class="sr-only">Password</label>
+	      <input type="password" ng-model="newPassword" id="inputPassword" class="form-control mt-1" placeholder="Password" required>
+	      <button class="btn btn-lg btn-primary mt-1 float-left" type="submit">Create Account</button>
+	      <button class="btn btn-lg btn-primary mt-1 float-right" type="button" ng-click="returnToLogin()">Cancel</button>
+	</form>
+</div>

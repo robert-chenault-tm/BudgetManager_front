@@ -1,0 +1,115 @@
+<navbar></navbar>
+<br />
+<br />
+<div class="container-fluid">
+  <div class="row">
+	<nav class="col-sm-3 col-md-2 d-none d-sm-block bg-light sidebar">
+	  <ul class="nav nav-pills flex-column mt-3">
+	  	<li class="nav-item">
+			<select class="form-control" ng-options="budgetMonth as budgetMonth.display for budgetMonth in budgetMonths" ng-model="date" ng-change="loadMonth()"></select>
+		</li>
+	    <li class="nav-item">
+	      <button class="btn btn-link" ng-click="toggleNewMonthForm()">Create Month<span class="sr-only"></span></button>
+	    </li>
+	    <li class="nav-item">
+	      <button class="btn btn-link" ng-click="toggleNewCategoryForm()">Create Category<span class="sr-only"></span></button>
+	    </li>
+	    <li class="nav-item">
+	      <button class="btn btn-link" ng-click="toggleNewExpenseForm()">Create Expense</button>
+	    </li>
+	  </ul>
+	  	<form id="newMonthForm" class="form-signin mt-5" ng-submit="createNewMonth()" ng-show="showNewMonthForm">
+	  		<h3>New Month</h3>
+			<label for="inputYear" class="sr-only">Year</label>
+			<input ng-model="newMonthYear" type="number" min="0" id="inputYear" class="form-control" placeholder="Year" required autofocus>
+			<label for="inputMonth" class="sr-only">Month</label>
+			<input ng-model="newMonthMonth" type="number" min="0" max="11" id="inputMonth" class="form-control" placeholder="Month" required>
+			<button class="btn btn-lg btn-primary btn-block" type="submit">Create</button>
+			<button class="btn btn-lg btn-primary btn-block" type="button" ng-click="toggleNewMonthForm()">Cancel</button>
+		</form>
+		
+		<form id="newCategoryForm" class="form-signin mt-5" ng-submit="submitCategoryForm()" ng-show="showNewCategoryForm">
+	  		<h3 ng-show="!editing">New Category</h3>
+	  		<h3 ng-show="editing">Edit Category</h3>
+			<label for="inputTitle" class="sr-only">Title</label>
+			<input ng-model="newCategoryTitle" type="text" id="inputTitle" class="form-control" placeholder="Title" required autofocus>
+			<label for="inputExpectedAmount" class="sr-only">Expected amount</label>
+			<input ng-model="newCategoryExpectedAmount" type="number" min="0" step="0.01" id="inputExpectedAmount" class="form-control" placeholder="Expected amount" required>
+			<input type="checkbox" ng-model="newCategoryIncome">Income
+			<button class="btn btn-lg btn-primary btn-block" type="submit" ng-show="!editing">Create</button>
+			<button class="btn btn-lg btn-primary btn-block" type="submit" ng-show="editing">Save</button>
+			<button class="btn btn-lg btn-primary btn-block" type="button" ng-click="deleteCategory()" ng-show="editing">Delete</button>
+			<button class="btn btn-lg btn-primary btn-block" type="button" ng-click="toggleNewCategoryForm()">Cancel</button>
+		</form>
+		
+		  <form id="newExpenseForm" class="form-signin mt-5" ng-submit="submitExpenseForm()" ng-show="showNewExpenseForm">
+		  	<h3 ng-show="!editing">New Expense</h3>
+		  	<h3 ng-show="editing">Edit Expense</h3>
+				<label for="inputName" class="sr-only">Name</label>
+				<input ng-model="newExpenseName" type="text" id="inputName" class="form-control" placeholder="Name" required autofocus>
+				<label for="inputAmount" class="sr-only">Amount</label>
+				<input ng-model="newExpenseAmount" type="number" min="0" step="0.01" id="inputAmount" class="form-control" placeholder="Amount" required>
+				<select class="form-control" ng-options=" category.title for category in categories" ng-model="newExpenseCategory" required></select>
+				<button class="btn btn-lg btn-primary btn-block" type="submit" ng-show="!editing">Create</button>
+				<button class="btn btn-lg btn-primary btn-block" type="submit" ng-show="editing">Save</button>
+				<button class="btn btn-lg btn-primary btn-block" type="button" ng-click="deleteExpense()" ng-show="editing">Delete</button>
+				<button class="btn btn-lg btn-primary btn-block" type="button" ng-click="toggleNewExpenseForm()">Cancel</button>
+			</form>
+	</nav>
+
+    <main role="main" class="col-sm-9 ml-sm-auto col-md-10 pt-3">
+      <h1 class="float-left">Breakdown for {{date.display}}</h1>
+      <button class="btn btn-link mt-1" ng-click="deleteMonth(date)">Delete<span class="sr-only"></span></button>
+      <br />
+      <br />
+      <section class="row">
+	      <div class="w-100 mb-2" style="overflow-x:scroll; white-space:nowrap">
+	      	<div class="mr-2 d-inline-block" ng-repeat="total in totals | orderBy: 'title'" style="width:10%">
+		        <div class="w-100 position-relative" style="height:200px">
+		          <div class="bg-primary w-50 position-absolute" style="height:{{(200*total.expectedAmount)/biggestCategory}}px; bottom:0;"></div>
+		          <div class="bg-secondary w-50 position-absolute" style="height:{{(200*total.total)/biggestCategory}}px; bottom:0; right:0"></div>
+		        </div>
+		        <h4 class="text-center">{{total.title}}</h4>
+		        <div class="text-primary text-center">Expected: {{total.expectedAmount}}</div>
+		        <div class="text-secondary text-center">Actual {{total.total}}</div>
+	        </div>
+	      </div>
+      </section>
+
+	<div class="mb-1" ng-repeat="category in categories">
+		<button class="btn float-left" type="button" ng-click="toggleCategoryDisplay(category)" ng-show="!category.hide">-</button>
+		<button class="btn float-left" type="button" ng-click="toggleCategoryDisplay(category)" ng-show="category.hide">+</button>
+		<h2 class="float-left">{{category.title}}</h2>
+		<button class="btn btn-link mt-1" ng-click="toggleEditCategoryForm(category)">Edit/Delete<span class="sr-only"></span></button>
+	      <div class="table-responsive" ng-show="!category.hide">
+	        <table class="table table-striped">
+	          <thead>
+	            <tr>
+	              <th class="w-25">Name</th>
+	              <th class="w-25">Amount</th>
+	              <th class="w-25"></th>
+	            </tr>
+	          </thead>
+	          <tbody>
+	            <tr ng-repeat="expense in filterExepensesByCategory(category)">
+	              <td>{{expense.name}}</td>
+	              <td>${{expense.amount}}</td>
+	              <td><button class="btn btn-link" ng-click="toggleEditExpenseForm(expense)">Edit/Delete<span class="sr-only"></span></button></td>
+	            </tr>
+	            <tr>
+	              <td>Total</td>
+	              <td>${{getCategoryTotal(category)}}</td>
+	              <td></td>
+	            </tr>
+	            <tr>
+	              <td>Expected</td>
+	              <td>${{category.expectedAmount}}</td>
+	              <td></td>
+	            </tr>
+	          </tbody>
+	        </table>
+	      </div>
+      </div>
+    </main>
+  </div>
+</div>
